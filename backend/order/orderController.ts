@@ -5,7 +5,7 @@ import {
   IdSequenceObject,
   ProductObject,
   OrderDocument,
-  OrderOrderItem,
+  OrderItem,
 } from 'types/mongoose.gen';
 
 import IdSequence from '../general/models/idSequenceModel';
@@ -46,13 +46,13 @@ const createOrder = asyncHandler(
     } else {
       // get the product info for the orderItems from the database
       const itemsFromDB: ProductObject[] = await Product.find({
-        _id: { $in: orderItems.map((x: OrderOrderItem) => x.productId) },
+        _id: { $in: orderItems.map((x: OrderItem) => x.productId) },
       });
       console.log('itemsFromDB');
       console.log(itemsFromDB);
       // map over the order items and get the price from our items from database
-      const dbOrderItems: OrderOrderItem[] = orderItems.map(
-        (itemFromClient: OrderOrderItem) => {
+      const dbOrderItems: OrderItem[] = orderItems.map(
+        (itemFromClient: OrderItem) => {
           const matchingItemFromDB: ProductObject | undefined =
             itemsFromDB.find(
               (itemFromDB) =>

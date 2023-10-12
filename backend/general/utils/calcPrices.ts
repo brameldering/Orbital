@@ -1,11 +1,11 @@
 import { ITotalAmounts } from 'types/commonTypes';
-import { OrderOrderItem } from 'types/mongoose.gen';
+import { OrderItem } from 'types/mongoose.gen';
 
 export const roundTo2Decimals = (num: number) => {
   return Math.round(num * 100) / 100;
 };
 
-export const calcPrices = (items: OrderOrderItem[]): ITotalAmounts => {
+export const calcPrices = (items: OrderItem[]): ITotalAmounts => {
   const VAT_FRACTION: number = Number(
     process.env.VAT_PERCENTAGE && Number(process.env.VAT_PERCENTAGE) / 100
   );
@@ -16,7 +16,7 @@ export const calcPrices = (items: OrderOrderItem[]): ITotalAmounts => {
   // Calculate the total items price
   const itemsPrice = roundTo2Decimals(
     items.reduce(
-      (acc: number, item: OrderOrderItem) => acc + item.price * item.qty,
+      (acc: number, item: OrderItem) => acc + item.price * item.qty,
       0
     )
   );

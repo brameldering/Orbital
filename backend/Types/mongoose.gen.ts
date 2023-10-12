@@ -7,6 +7,7 @@
 
 import mongoose from 'mongoose';
 
+// ======================================================== IdSequence ========================================================
 /**
  * Lean version of IdSequenceDocument
  *
@@ -104,15 +105,192 @@ export type IdSequenceDocument = mongoose.Document<
     _id: mongoose.Types.ObjectId;
   };
 
+// ======================================================== Cart ========================================================
 /**
- * Lean version of OrderOrderItemDocument
+ * Lean version of CartItemDocument
+ *
+ * This has all Mongoose getters & functions removed. This type will be returned from `CartDocument.toObject()`.
+ * ```
+ * const cartObject = cart.toObject();
+ * ```
+ */
+export type CartItem = {
+  productId: Product['_id'] | Product;
+  productName: string;
+  imageURL: string;
+  price: number;
+  countInStock: number;
+  qty: number;
+  _id: mongoose.Types.ObjectId;
+};
+
+/**
+ * Lean version of CartTotalAmountDocument
+ *
+ * This has all Mongoose getters & functions removed. This type will be returned from `CartDocument.toObject()`.
+ * ```
+ * const cartObject = cart.toObject();
+ * ```
+ */
+export type CartTotalAmount = {
+  itemsPrice: number;
+  shippingPrice: number;
+  taxPrice: number;
+  totalPrice: number;
+  _id: mongoose.Types.ObjectId;
+};
+
+/**
+ * Lean version of CartDocument
+ *
+ * This has all Mongoose getters & functions removed. This type will be returned from `CartDocument.toObject()`. To avoid conflicts with model names, use the type alias `CartObject`.
+ * ```
+ * const cartObject = cart.toObject();
+ * ```
+ */
+export type Cart = {
+  userId: User['_id'] | User;
+  cartItems: CartItem[];
+  shippingAddress?: {
+    address: string;
+    city: string;
+    postalCode: string;
+    country: string;
+  };
+  paymentMethod?: string;
+  totalAmounts?: OrderTotalAmount;
+  createdAt?: Date;
+  updatedAt?: Date;
+  _id: mongoose.Types.ObjectId;
+};
+
+/**
+ * Lean version of CartDocument (type alias of `Cart`)
+ *
+ * Use this type alias to avoid conflicts with model names:
+ * ```
+ * import { Cart } from "../models"
+ * import { CartObject } from "../interfaces/mongoose.gen.ts"
+ *
+ * const cartObject: CartObject = cart.toObject();
+ * ```
+ */
+export type CartObject = Cart;
+
+/**
+ * Mongoose Query type
+ *
+ * This type is returned from query functions. For most use cases, you should not need to use this type explicitly.
+ */
+export type CartQuery = mongoose.Query<any, CartDocument, CartQueries> &
+  CartQueries;
+
+/**
+ * Mongoose Query helper types
+ *
+ * This type represents `CartSchema.query`. For most use cases, you should not need to use this type explicitly.
+ */
+export type CartQueries = {};
+
+export type CartMethods = {};
+
+export type CartStatics = {};
+
+/**
+ * Mongoose Model type
+ *
+ * Pass this type to the Mongoose Model constructor:
+ * ```
+ * const Cart = mongoose.model<CartDocument, CartModel>("Cart", CartrSchema);
+ * ```
+ */
+export type CartModel = mongoose.Model<CartDocument, CartQueries> & CartStatics;
+
+/**
+ * Mongoose Schema type
+ *
+ * Assign this type to new Cart schema instances:
+ * ```
+ * const CartSchema: CartSchema = new mongoose.Schema({ ... })
+ * ```
+ */
+export type CartSchema = mongoose.Schema<
+  CartDocument,
+  CartModel,
+  CartMethods,
+  CartQueries
+>;
+
+/**
+ * Mongoose Subdocument type
+ *
+ * Type of `CartDocument["cartItems"]` element.
+ */
+export type CartItemDocument = mongoose.Types.Subdocument & {
+  productId: ProductDocument['_id'] | ProductDocument;
+  productName: string;
+  imageURL: string;
+  price: number;
+  countInStock: number;
+  qty: number;
+  _id: mongoose.Types.ObjectId;
+};
+
+/**
+ * Mongoose Document type
+ *
+ * Pass this type to the Mongoose Model constructor:
+ * ```
+ * const Order = mongoose.model<OrderDocument, OrderModel>("Order", OrderSchema);
+ * ```
+ */
+export type CartTotalAmountDocument =
+  mongoose.Document<mongoose.Types.ObjectId> & {
+    itemsPrice: number;
+    shippingPrice: number;
+    taxPrice: number;
+    totalPrice: number;
+    _id: mongoose.Types.ObjectId;
+  };
+
+/**
+ * Mongoose Document type
+ *
+ * Pass this type to the Mongoose Model constructor:
+ * ```
+ * const Cart = mongoose.model<CartDocument, CartModel>("Cart", CartSchema);
+ * ```
+ */
+export type CartDocument = mongoose.Document<
+  mongoose.Types.ObjectId,
+  CartQueries
+> &
+  CartMethods & {
+    userId: UserDocument['_id'] | UserDocument;
+    cartItems: mongoose.Types.DocumentArray<CartItemDocument>;
+    shippingAddress?: {
+      address: string;
+      city: string;
+      postalCode: string;
+      country: string;
+    };
+    paymentMethod?: string;
+    totalAmounts?: OrderTotalAmountDocument;
+    _id: mongoose.Types.ObjectId;
+    createdAt?: Date;
+    updatedAt?: Date;
+  };
+
+// ======================================================== Order ========================================================
+/**
+ * Lean version of OrderItemDocument
  *
  * This has all Mongoose getters & functions removed. This type will be returned from `OrderDocument.toObject()`.
  * ```
  * const orderObject = order.toObject();
  * ```
  */
-export type OrderOrderItem = {
+export type OrderItem = {
   productId: Product['_id'] | Product;
   productName: string;
   imageURL: string;
@@ -148,7 +326,7 @@ export type OrderTotalAmount = {
 export type Order = {
   sequenceOrderId: string;
   userId: User['_id'] | User;
-  orderItems: OrderOrderItem[];
+  orderItems: OrderItem[];
   shippingAddress: {
     address: string;
     city: string;
@@ -236,7 +414,7 @@ export type OrderSchema = mongoose.Schema<
  *
  * Type of `OrderDocument["orderItems"]` element.
  */
-export type OrderOrderItemDocument = mongoose.Types.Subdocument & {
+export type OrderItemDocument = mongoose.Types.Subdocument & {
   productId: ProductDocument['_id'] | ProductDocument;
   productName: string;
   imageURL: string;
@@ -277,7 +455,7 @@ export type OrderDocument = mongoose.Document<
   OrderMethods & {
     sequenceOrderId: string;
     userId: UserDocument['_id'] | UserDocument;
-    orderItems: mongoose.Types.DocumentArray<OrderOrderItemDocument>;
+    orderItems: mongoose.Types.DocumentArray<OrderItemDocument>;
     shippingAddress: {
       address: string;
       city: string;
@@ -302,6 +480,7 @@ export type OrderDocument = mongoose.Document<
     user: any;
   };
 
+// ======================================================== Product ========================================================
 /**
  * Lean version of ProductReviewDocument
  *
@@ -453,6 +632,7 @@ export type ProductDocument = mongoose.Document<
     updatedAt?: Date;
   };
 
+// ======================================================== User ========================================================
 /**
  * Lean version of UserDocument
  *

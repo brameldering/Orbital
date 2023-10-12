@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Row, Col } from 'react-bootstrap';
+import { Row, Col, ListGroup } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import { useParams, Link } from 'react-router-dom';
 import { IProduct } from 'src/types/productTypes';
@@ -10,6 +10,7 @@ import Meta from '../components/general/Meta';
 import Paginate from '../components/general/Paginate';
 import Product from '../components/product/Product';
 import { setConfig } from '../slices/configSlice';
+import { useGetCartForUserQuery } from '../slices/cartApiSlice';
 import { useGetVATandShippingFeeQuery } from '../slices/ordersApiSlice';
 import { useGetProductsQuery } from '../slices/productsApiSlice';
 
@@ -31,6 +32,8 @@ const HomeScreen = () => {
     isLoading: loadingVATandShippingFee,
     error: errorLoadingVATandShippingFee,
   } = useGetVATandShippingFeeQuery();
+
+  const { data: cartFromDB } = useGetCartForUserQuery();
 
   /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
@@ -56,6 +59,20 @@ const HomeScreen = () => {
       ) : (
         <>
           <Meta title='Products' />
+          <h1>Cart</h1>
+          {cartFromDB && cartFromDB.cartItems && (
+            <ListGroup variant='flush'>
+              {cartFromDB.cartItems.map((item) => (
+                <ListGroup.Item id='product_item' key={item.productId}>
+                  <Row>
+                    <Col md={4}>{item.productName}</Col>
+                    <Col md={2}>{item.price.toFixed(2)}</Col>
+                  </Row>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          )}
+
           <h1>Products</h1>
           <Row>
             {catalogData &&

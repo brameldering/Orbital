@@ -32,7 +32,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
-    logout: builder.mutation<void, void>({
+    logout: builder.mutation<string, void>({
       query: () => ({
         url: `${USERS_URL}/logout`,
         method: 'POST',
@@ -55,7 +55,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['User'],
     }),
-    resetPassword: builder.mutation<void, IPasswordReset>({
+    resetPassword: builder.mutation<string, IPasswordReset>({
       query: (data) => ({
         url: `${USERS_URL}/resetpassword`,
         method: 'PUT',
@@ -77,7 +77,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['User'],
     }),
-    deleteUser: builder.mutation<void, string>({
+    deleteUser: builder.mutation<string, string>({
       query: (id) => ({
         url: `${USERS_URL}/${id}`,
         method: 'DELETE',

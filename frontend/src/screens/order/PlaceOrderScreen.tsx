@@ -11,6 +11,7 @@ import CheckoutSteps from '../../components/order/CheckoutSteps';
 import OrderItemLine from '../../components/order/OrderItemLine';
 import OrderSummaryBlock from '../../components/order/OrderSummaryBlock';
 import { clearCartItems } from '../../slices/cartSlice';
+import { useDeleteCartForUserMutation } from '../../slices/cartApiSlice';
 import { useCreateOrderMutation } from '../../slices/ordersApiSlice';
 import type { RootState } from '../../store';
 
@@ -22,6 +23,8 @@ const PlaceOrderScreen = () => {
 
   const [createOrder, { isLoading: creatingOrder, error: errorCreatingOrder }] =
     useCreateOrderMutation();
+  const [deleteCartFromDB, { isLoading: deletingCart }] =
+    useDeleteCartForUserMutation();
 
   useEffect(() => {
     if (!cart.shippingAddress.address) {
@@ -48,12 +51,17 @@ const PlaceOrderScreen = () => {
         paymentMethod: cart.paymentMethod,
         totalAmounts: cart.totalAmounts,
       }).unwrap();
+      await deleteCartFromDB().unwrap();
       dispatch(clearCartItems());
       navigate(`/order/${res._id}`);
     } catch (err) {
       // Do nothing because useCreateOrderMutation will set errorCreatingOrder in case of an error
+      console.log('Error! == PlaceOrderScreen == PlaceOrderHandler', err);
     }
   };
+
+  const loadingOrProcessing =
+    cart.cartItems.length === 0 || creatingOrder || deletingCart;
 
   return (
     <>
@@ -106,7 +114,7 @@ const PlaceOrderScreen = () => {
                   id='BUTTON_place_order'
                   type='button'
                   className='btn-block mt-2'
-                  disabled={cart.cartItems.length === 0 || creatingOrder}
+                  disabled={loadingOrProcessing}
                   onClick={placeOrderHandler}>
                   Place Order
                 </Button>

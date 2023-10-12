@@ -7,8 +7,13 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
 import LogoSVG from '../../assets/LogoSVG';
+import Loader from '../../components/general/Loader';
 import { logout } from '../../slices/authSlice';
 import { resetCart } from '../../slices/cartSlice';
+import {
+  useSaveCartForUserMutation,
+  useDeleteCartForUserMutation,
+} from '../../slices/cartApiSlice';
 import { useLogoutMutation } from '../../slices/usersApiSlice';
 import type { RootState } from '../../store';
 
@@ -19,12 +24,26 @@ const Header = () => {
   const navigate = useNavigate();
 
   const { userInfo } = useSelector((state: RootState) => state.auth);
-  const { cartItems } = useSelector((state: RootState) => state.cart);
+  const cart = useSelector((state: RootState) => state.cart);
 
-  const [logoutApiCall] = useLogoutMutation();
+  const [saveCartToDB, { isLoading: savingCart }] =
+    useSaveCartForUserMutation();
+  const [deleteCartFromDB, { isLoading: deletingCart }] =
+    useDeleteCartForUserMutation();
+  const [logoutApiCall, { isLoading: loggingOut }] = useLogoutMutation();
 
   const logoutHandler = async () => {
+    console.log('== logoutHandler = cart ', cart);
+    console.log('== logoutHandler = cartItems ', cart.cartItems);
     try {
+      // Save cart to database if there are items in local cart
+      if (cart.cartItems.length > 0) {
+        await saveCartToDB(cart).unwrap();
+      } else {
+        // if there are no items in local state then delete cart
+        await deleteCartFromDB().unwrap();
+      }
+      // Logout
       await logoutApiCall().unwrap();
       dispatch(logout());
       dispatch(resetCart());
@@ -34,15 +53,21 @@ const Header = () => {
     }
   };
 
+  const loadingOrProcessing = savingCart || deletingCart || loggingOut;
+
   return (
     <header>
       <Navbar bg='primary' variant='dark' expand='lg' collapseOnSelect>
         <Container>
           <LinkContainer to='/'>
-            <Navbar.Brand id='LINK_orbital_shop'>
-              <LogoSVG />
-              <span style={{ marginLeft: '10px' }}>Orbital Shop</span>
-            </Navbar.Brand>
+            {loadingOrProcessing ? (
+              <Loader size={'60px'} />
+            ) : (
+              <Navbar.Brand id='LINK_orbital_shop'>
+                <LogoSVG />
+                <span style={{ marginLeft: '10px' }}>Orbital Shop</span>
+              </Navbar.Brand>
+            )}
           </LinkContainer>
 
           <Navbar.Toggle aria-controls='basic_navbar_nav' />
@@ -52,9 +77,9 @@ const Header = () => {
               <LinkContainer to='/cart'>
                 <Nav.Link id='LINK_header_cart'>
                   <FaShoppingCart /> Cart
-                  {cartItems.length > 0 && (
+                  {cart.cartItems.length > 0 && (
                     <Badge pill bg='success' style={{ marginLeft: '5px' }}>
-                      {cartItems.reduce((a, c) => a + c.qty, 0)}
+                      {cart.cartItems.reduce((a, c) => a + c.qty, 0)}
                     </Badge>
                   )}
                 </Nav.Link>

@@ -10,6 +10,8 @@ frontend/node_modules
 
 # testing
 /coverage
+backend/coverage
+frontend/coverage
 
 # storybook
 /storybook-static
