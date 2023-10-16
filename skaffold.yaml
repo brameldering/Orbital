@@ -1,8 +1,12 @@
 apiVersion: skaffold/v4beta6
 kind: Config
 build:
+  # local:
+  #   push: false
+  googleCloudBuild:
+    projectId: orbital-dev-402212
   artifacts:
-    - image: orbital/auth
+    - image: gcr.io/orbital-dev-402212/auth
       context: auth
       sync:
         manual:
@@ -10,8 +14,6 @@ build:
             dest: .
       docker:
         dockerfile: Dockerfile
-  local:
-    push: false
 manifests:
   rawYaml:
     - ./infra/k8s/*

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: auth
-          image: orbital/auth
+          image: gcr.io/orbital-dev-402212/auth
 ---
 apiVersion: v1
 kind: Service
